@@ -5,7 +5,7 @@
 
 # Version 1.1.0:
     -Improved PID tuning classes to show more info
-    -Tuned PID and replaced corresponding constants
+    -Attempted to tune PID and failed (fairly untuned, will require more testing)
     -Moved valid tag detection to AprilTagWebcam and refactored code accordingly
     -Added Max Power Mode to shooting so we can shoot balls even if flywheel is worn down (plastic buildup from poor-quality balls)
     -Added a changelog so I don't have to write the changes in the commit message (also to keep track of my changes)
