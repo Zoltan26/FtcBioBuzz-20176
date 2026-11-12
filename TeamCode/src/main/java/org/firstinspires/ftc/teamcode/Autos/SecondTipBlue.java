@@ -49,7 +49,7 @@ public class SecondTipBlue extends LinearOpMode {
         timer.reset();
 
         // Step through each leg of the path -----------------------------------------------------------------------------------------------------
-        if (utils.getValidTargetExists()) {
+        if (utils.getValidTargetFound()) {
             //make sure tip was successful by reading the AprilTag
             //if not, this will fail, and we will just move into position
             utils.startPollenShooting();

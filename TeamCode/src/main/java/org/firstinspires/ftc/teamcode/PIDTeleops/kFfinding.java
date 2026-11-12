@@ -16,15 +16,15 @@ import org.firstinspires.ftc.teamcode.utils.OpModeUtils;
 public class kFfinding extends RobotTeleopMecanum_Iterative {
 
     //double Kf = 0.0004;
-    double Kf = 0;
-    double Ks = 0.011;
-    double lowBound = 0;
-    double highBound = 0;
-    boolean highBoundTime = false;
-    double targetSpeed = 1300;
+    double Kf = 0; //0.000592
+    double Ks = 0.066;
+    double targetSpeed = 1240;
+    double averageError = 0;
+    double totalError = 0;
+    double denominator = 0;
+    double highestFluxError = 0;
     double[] stepSizes = {10, 1, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001, 0.00000001};
-    int stepIndex = 0;
-    ElapsedTime timer = new ElapsedTime();
+    int stepIndex = 5;
 
     private DcMotorEx motor;
 
@@ -44,32 +44,67 @@ public class kFfinding extends RobotTeleopMecanum_Iterative {
     @Override
     public void loop() {
 
-        if (timer.seconds() > 0.1) {
-            Kf += 0.000001;
-            timer.reset();
+        boolean reset = false;
+
+        if (gamepad1.dpadUpWasPressed()) {
+            Kf += stepSizes[stepIndex];
+            reset = true;
+        }
+
+        if (gamepad1.dpadDownWasPressed()) {
+            Kf -= stepSizes[stepIndex];
+            reset = true;
+        }
+
+        if (gamepad1.dpadRightWasPressed()) {
+            targetSpeed += 10;
+            reset = true;
+        }
+
+        if (gamepad1.dpadLeftWasPressed()) {
+            targetSpeed -= 10;
+            reset = true;
+        }
+
+        if (gamepad1.aWasPressed()) {
+            stepIndex = (stepIndex + 1) % stepSizes.length;
+        }
+
+        if (reset) {
+            //reset to track error info at a target Kf
+            totalError = 0;
+            denominator = 0;
+            highestFluxError = 0;
+            reset = false;
         }
 
         double error = targetSpeed - motor.getVelocity();
-        if (error < 0 && !highBoundTime) {
-            lowBound = Kf;
-            highBoundTime = true;
+        totalError += error;
+        denominator++;
+        //average error to know roughly how on-point it is
+        //it will fluctuate a lot, but generally, is it centered on a point, ish?
+        averageError = totalError / denominator;
+
+        if (Math.abs(error) > Math.abs(highestFluxError)) {
+            //the magnitude is the only thing that's important in the check
+            //we want to keep direction though
+            //basically the most swing the error ever experienced (but we want to know if it was under or over shoot)
+            highestFluxError = error;
         }
-
-        if (highBoundTime && error > 0) {
-            highBound = Kf;
-        }
-
-
 
         motor.setPower(Ks + (targetSpeed * Kf));
 
+        telemetry.addData("Power", motor.getPower());
         telemetry.addData("Increment", String.format("%.8f", stepSizes[stepIndex]));
         telemetry.addData("Ks", String.format("%.8f", Ks));
         telemetry.addData("Kf", String.format("%.8f", Kf));
         telemetry.addData("Target", targetSpeed);
+        telemetry.addLine();
         telemetry.addData("Error", error);
-        telemetry.addData("High bound", highBound);
-        telemetry.addData("Low bound", lowBound);
+        telemetry.addData("Most Error", highestFluxError);
+        telemetry.addData("Average Error", averageError);
+        telemetry.addData("Total Error", totalError);
+        telemetry.addData("Error Checks", denominator);
         telemetry.update();
 
     }
@@ -81,8 +116,3 @@ public class kFfinding extends RobotTeleopMecanum_Iterative {
         motor.setPower(0);
     }
 }
-
-
-// tps  at P and F
-// 1550 at 5 and 20
-// 1450 at 6 and 23

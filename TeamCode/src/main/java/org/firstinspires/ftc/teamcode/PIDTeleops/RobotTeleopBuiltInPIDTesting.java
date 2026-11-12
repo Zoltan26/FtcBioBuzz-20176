@@ -141,8 +141,3 @@ public class RobotTeleopBuiltInPIDTesting extends RobotTeleopMecanum_Iterative {
         telemetry.update();
     }
 }
-
-
-// tps  at P and F
-// 1550 at 5 and 20
-// 1450 at 6 and 23

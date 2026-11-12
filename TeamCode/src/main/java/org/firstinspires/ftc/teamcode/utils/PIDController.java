@@ -9,10 +9,14 @@ public class PIDController {
     private double targetSpeed;        //tracks target speed in ticks/second (tps), set once at the start of the loop
 
     //gonna need to retune it when we have the right speed. frankly, these initial values won't really be used
-    private double Kp = 0.0007;        //how fast/slow the system moves towards 0 error
-    //private double Kd = 0.0000305;   //makes sure the system doesn't tend towards 0 error too quickly
-    private double Kf = 0.0006;      //estimates based on speed, predicts (more or less accurately) power requirement
-    private double Ks = 0.011;         //power needed to overcome static friction
+    private static final double KP_DEFAULT = 0.0012;
+    private static final double KF_DEFAULT = 0.000592;
+    private static final double KS_DEFAULT = 0.066;
+
+    private double Kp = KP_DEFAULT;  //how fast/slow the system moves towards 0 error
+    private double Kf = KF_DEFAULT;  //estimates based on speed, predicts (more or less accurately) power requirement
+    private double Ks = KS_DEFAULT;  //power needed to overcome static friction
+    //target = 1210
 
     double error;
     boolean loopActive = false;
@@ -70,6 +74,18 @@ public class PIDController {
         this.Kf = Kf;
         this.Ks = Ks;
         this.targetSpeed = speed;
+    }
+
+    public void resetDefaults() {
+        this.Kp = KP_DEFAULT;
+        this.Ks = KS_DEFAULT;
+        this.Kf = KF_DEFAULT;
+    }
+
+    public void maxPowerMode() {
+        this.Kp = 0;
+        this.Ks = 0;
+        this.Kf = 1;
     }
 
     public void changeTargetSpeed(double targetSpeed) {

@@ -65,8 +65,3 @@ public class kSfinding extends RobotTeleopMecanum_Iterative {
         motor.setPower(0);
     }
 }
-
-
-// tps  at P and F
-// 1550 at 5 and 20
-// 1450 at 6 and 23

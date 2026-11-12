@@ -30,14 +30,10 @@
 package org.firstinspires.ftc.teamcode.Teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.OpModeUtils;
-import org.opencv.ml.EM;
-
-import java.util.Locale;
 
 public class RobotTeleopMecanum_Iterative extends OpMode {
 
@@ -48,6 +44,7 @@ public class RobotTeleopMecanum_Iterative extends OpMode {
     protected boolean isPrecisionMode = false;
     protected boolean isIntaking = false;
     protected boolean isPollenShooting = false;
+    protected boolean pollenMaxPower = false;
     protected boolean isSafetyMode = false;
     //protected boolean isNectarShooting = false;
     protected double normalDriveSpeed = 1.0;
@@ -147,6 +144,11 @@ public class RobotTeleopMecanum_Iterative extends OpMode {
             utils.blockPollenFlowToShooter();
         }
 
+        if (gamepad1.dpadDownWasPressed()) {
+            pollenMaxPower = !pollenMaxPower;
+            utils.pollenMaxPowerMode(pollenMaxPower);
+        }
+
         //NECTAR SHOOTING --------------------------------------------------------------------------------------------------------
         /* not dealing with nectar for now
         if (gamepad1.rightBumperWasPressed()) {
@@ -216,8 +218,8 @@ public class RobotTeleopMecanum_Iterative extends OpMode {
         }
 
         //TELEMETRY ------------------------------------------------------------------------------------------------------------
-        if (utils.getIsTargetingAprilTag()) {
-            telemetry.addData("Found April Tag", utils.getTargetedAprilTagName());
+        if (utils.getValidTargetFound()) {
+            telemetry.addData("Found April Tag", utils.getValidTag());
         } else {
             telemetry.addLine("No April Tag Targeted");
         }

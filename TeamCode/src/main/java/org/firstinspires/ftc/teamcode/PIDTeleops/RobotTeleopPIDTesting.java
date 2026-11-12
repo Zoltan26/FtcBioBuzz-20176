@@ -15,7 +15,7 @@ public class RobotTeleopPIDTesting extends RobotTeleopMecanum_Iterative {
 
     private boolean testingActive = false;
     private double Kp = 0.0007;
-    private double Ks = 0.011;
+    private double Ks = 0.28;
     private double Kf = 0.0006;
     private final double[] speed = {800, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 1550, 1600};
     private int speedIndex = 6;

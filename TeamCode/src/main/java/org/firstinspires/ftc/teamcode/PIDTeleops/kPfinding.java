@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Teleops.RobotTeleopMecanum_Iterative;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
@@ -16,15 +17,22 @@ import org.firstinspires.ftc.teamcode.utils.OpModeUtils;
 public class kPfinding extends RobotTeleopMecanum_Iterative {
 
     //double Kf = 0.0004;
-    double Kf = 0.000395;
-    double Ks = 0.011;
-    double Kp = 0.0005;
-    double targetSpeed = 1450;
-    double highSpeed = 1450;
-    double lowSpeed = 800;
+    double Kf = 0.000592;
+    double Ks = 0.066;
+    double Kp = 0.0012;
+    double targetSpeed = 1210;
+    double highSpeed = 1210;
+    double lowSpeed = 200;
+
+    double averageError = 0;
+    double totalError = 0;
+    double denominator = 0;
+
+    ElapsedTime timer = new ElapsedTime();
+
+
     double[] stepSizes = {0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001, 0.00000001};
     int stepIndex = 4;
-    ElapsedTime timer = new ElapsedTime();
 
     private DcMotorEx motor;
 
@@ -44,6 +52,13 @@ public class kPfinding extends RobotTeleopMecanum_Iterative {
     @Override
     public void loop() {
 
+        if (timer.seconds() > 5) {
+            timer.reset();
+            averageError = 0;
+            totalError = 0;
+            denominator = 0;
+        }
+
         if (gamepad1.dpadUpWasPressed()) {
             Kp += stepSizes[stepIndex];
         }
@@ -52,6 +67,8 @@ public class kPfinding extends RobotTeleopMecanum_Iterative {
             Kp -= stepSizes[stepIndex];
         }
 
+        //artificially create slow-downs to see how the system reacts, how quickly
+        //the point of proportional control to so make the pid get to target quickly (as in, <0.5sec ideally)
         if (gamepad1.aWasPressed()) {
             if (targetSpeed != lowSpeed) {
                 targetSpeed = lowSpeed;
@@ -60,6 +77,7 @@ public class kPfinding extends RobotTeleopMecanum_Iterative {
             }
         }
 
+        //test shooting ig
         if (gamepad1.x) {
             utils.releasePollenFlowToShooter();
         } else {
@@ -71,15 +89,24 @@ public class kPfinding extends RobotTeleopMecanum_Iterative {
         }
 
         double error = targetSpeed - motor.getVelocity();
-
         motor.setPower((error * Kp) + Ks + (targetSpeed * Kf));
 
+        //average error to know roughly how on-point it is
+        //it will fluctuate a lot, but generally, is it centered on a point, ish?
+        totalError += error;
+        denominator++;
+        averageError = totalError / denominator;
+
+        telemetry.addData("Timer", timer.seconds());
+        telemetry.addData("Power", motor.getPower());
         telemetry.addData("Increment", String.format("%.8f", stepSizes[stepIndex]));
         telemetry.addData("Ks", String.format("%.8f", Ks));
         telemetry.addData("Kf", String.format("%.8f", Kf));
         telemetry.addData("Kp", String.format("%.8f", Kp));
         telemetry.addData("Target", targetSpeed);
+        telemetry.addData("Current", motor.getVelocity());
         telemetry.addData("Error", error);
+        telemetry.addData("Average Error", averageError);
         telemetry.update();
 
     }
@@ -91,8 +118,3 @@ public class kPfinding extends RobotTeleopMecanum_Iterative {
         motor.setPower(0);
     }
 }
-
-
-// tps  at P and F
-// 1550 at 5 and 20
-// 1450 at 6 and 23

@@ -28,7 +28,7 @@ public class OpModeUtils {
 
 
     //CONSTANTS
-    private final double POLLEN_SHOOTER_SPEED = 1450;
+    private final double POLLEN_SHOOTER_SPEED = 1250;
     private final double NECTAR_SHOOTER_SPEED = 1550; //this is guess, not real. must find
     private final double POLLEN_RELEASE_POSITION = 0.15;
     private final double POLLEN_STOPPER_POSITION = 0.375;
@@ -54,7 +54,7 @@ public class OpModeUtils {
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     //function as an init, sets up hardware and whatnot
-    public OpModeUtils(HardwareMap hardwareMap, AllianceColor color) {
+    public OpModeUtils(HardwareMap hardwareMap, AllianceColor alliance) {
         // Define and Initialize Motors/Servos
         frontLeft = hardwareMap.get(DcMotor.class, "front_left_drive");
         frontRight = hardwareMap.get(DcMotor.class, "front_right_drive");
@@ -102,8 +102,8 @@ public class OpModeUtils {
         //won't need it for intake (doesn't have to be precise)
         //hopefully won't need it for shooters, but might
 
-        webcam = new AprilTagWebcam(hardwareMap);
-        this.alliance = color;
+        webcam = new AprilTagWebcam(hardwareMap, alliance);
+        this.alliance = alliance;
     }
 
 
@@ -132,21 +132,23 @@ public class OpModeUtils {
         backLeft.setPower(0);
     }
 
+
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // APRIL TAG -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     public void aprilTagDrive(double forward, double strafe, double rotate, double speed) {
         webcam.update();
 
-        boolean validFind = getValidTargetExists();
-        String tagClusterFound;
-
         //if we didn't find a tag, we should move normally, but add some rotation
         //added rotation will allow us to spin until we find something
-        if (!validFind) {
+        if (!webcam.validAprilTagFound()) {
             standardDrive(forward, strafe, 0.15, speed);
             return;
-        } else {
-            tagClusterFound = getValidTag(); //returns the valid tag that was found
         }
 
+        String tagClusterFound = webcam.getValidTag(); //returns the valid tag that was found
 
         //camera is upside down, so bearing is negative, subtractions of negative bearing results in addition
         double error = APRIL_TAG_TARGET + webcam.getBearingForCluster(tagClusterFound);
@@ -174,78 +176,20 @@ public class OpModeUtils {
         aprilTagLastError = 0;
     }
 
-    public String getTargetedAprilTagName() {
+    public String getTargetedAprilTag() {
         return webcam.getFoundCluster(0);
     }
 
-    public boolean getIsTargetingAprilTag() {
+    public boolean getAprilTagFound() {
         return webcam.aprilTagFound();
     }
 
-    public boolean getValidTargetExists() {
-        boolean validFind = false;
-        int index = 0;
-        String tagClusterFound = webcam.getFoundCluster(index);
-
-        while (true) {
-            if (alliance == AllianceColor.RED) {
-                if (tagClusterFound.startsWith("R")) {
-                    validFind = true;
-                }
-            } else if (alliance == AllianceColor.BLUE) {
-                if (tagClusterFound.startsWith("B")) {
-                    validFind = true;
-                }
-            } else {
-                //if no alliance, track any tag
-                if (!tagClusterFound.isEmpty()) {
-                    validFind = true;
-                }
-            }
-
-            if (!validFind) {
-                index++;
-                tagClusterFound = webcam.getFoundCluster(index);
-                if (tagClusterFound.isEmpty()) {
-                    return false; //index out of bounds
-                    //a valid tag hasn't been detected, return false
-                }
-            } else {
-                //validFind is true, we can leave the loop
-                return true;
-            }
-        }
+    public boolean getValidTargetFound() {
+        return webcam.validAprilTagFound();
     }
 
     public String getValidTag() {
-        boolean validFind = false;
-        int index = 0;
-        String tagClusterFound = webcam.getFoundCluster(index);
-
-        while (true) {
-            if (alliance == AllianceColor.RED) {
-                if (tagClusterFound.startsWith("R")) {
-                    validFind = true;
-                }
-            } else if (alliance == AllianceColor.BLUE) {
-                if (tagClusterFound.startsWith("B")) {
-                    validFind = true;
-                }
-            } else {
-                //if no alliance, track any tag
-                if (!tagClusterFound.isEmpty()) {
-                    validFind = true;
-                }
-            }
-
-            if (!validFind) {
-                index++;
-                tagClusterFound = webcam.getFoundCluster(index);
-            } else {
-                //validFind is true, we can leave the loop
-                return tagClusterFound;
-            }
-        }
+        return webcam.getValidTag();
     }
 
 
@@ -255,7 +199,7 @@ public class OpModeUtils {
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     public void intake() {
-        intakeMotor.setPower(0.65);
+        intakeMotor.setPower(0.6);
     }
 
     public void stopIntake() {
@@ -263,7 +207,7 @@ public class OpModeUtils {
     }
 
     public void emergencyEjectIntake(double time) {
-        intakeMotor.setPower(-0.5 - time);
+        intakeMotor.setPower(-(0.5 + time));
     }
 
     /* later
@@ -310,6 +254,14 @@ public class OpModeUtils {
 
     public void blockPollenFlowToShooter() {
         pollenServo.setPosition(POLLEN_STOPPER_POSITION);
+    }
+
+    public void pollenMaxPowerMode(boolean on) {
+        if (on) {
+            pollenPID.maxPowerMode();
+        } else {
+            pollenPID.resetDefaults();
+        }
     }
 
 

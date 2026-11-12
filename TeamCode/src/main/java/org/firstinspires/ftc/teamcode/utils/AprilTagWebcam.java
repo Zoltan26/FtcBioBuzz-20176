@@ -22,9 +22,10 @@ public class AprilTagWebcam {
     private final VisionPortal visionPortal;
     private ArrayList<AprilTagDetection> detections = new ArrayList<>();
     private float decimation = 2;
+    private String validTagPrefix;
 
 
-    public AprilTagWebcam(HardwareMap hardwareMap) {
+    public AprilTagWebcam(HardwareMap hardwareMap, AllianceColor alliance) {
         //most of this might not be needed, just the units and build methods (last 2)
         processor = new AprilTagProcessor.Builder().setDrawTagID(true).setDrawTagOutline(true).setDrawAxes(true).setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11).setTagLibrary(AprilTagGameDatabase.getBioBuzzTagLibrary()).setOutputUnits(DistanceUnit.CM, AngleUnit.DEGREES).build();
 
@@ -35,7 +36,13 @@ public class AprilTagWebcam {
 
         visionPortal = builder.build();
 
-        //might need to modify exposure, we will see :)
+        if (alliance == AllianceColor.BLUE) {
+            validTagPrefix = "B";
+        } else if (alliance == AllianceColor.RED) {
+            validTagPrefix = "R";
+        } else {
+            validTagPrefix = "";
+        }
     }
 
     public void update() {
@@ -117,6 +124,41 @@ public class AprilTagWebcam {
         return !detections.isEmpty();
     }
 
+    public boolean validAprilTagFound() {
+        if (aprilTagFound()) {
+
+            for (AprilTagDetection detection : detections) {
+                if (detection instanceof AprilTagClusterDetection) {
+                    AprilTagClusterDetection detection1 = (AprilTagClusterDetection) detection;
+                    if (detection1.metadata.name.startsWith(validTagPrefix)) {
+                        return true;
+                    }
+                }
+            }
+
+        }
+
+        return false;
+    }
+
+    public boolean isValidTag(String name) {
+        return name.startsWith(validTagPrefix);
+    }
+
+    public String getValidTag() {
+        update();
+        for (int i = 0; i < detections.size(); i++) {
+            if (detections.get(i) instanceof AprilTagClusterDetection) {
+                AprilTagClusterDetection detection = (AprilTagClusterDetection) detections.get(i);
+                if (detection.metadata.name.startsWith(validTagPrefix)) {
+                    return detection.metadata.name;
+                }
+            }
+        }
+
+        return "";
+    }
+
     public void stop() {
         if (visionPortal != null) {
             visionPortal.close();
@@ -133,6 +175,16 @@ public class AprilTagWebcam {
 
     public float getDecimation() {
         return decimation;
+    }
+
+    public void changeAlliance(AllianceColor alliance) {
+        if (alliance == AllianceColor.BLUE) {
+            validTagPrefix = "B";
+        } else if (alliance == AllianceColor.RED) {
+            validTagPrefix = "R";
+        } else {
+            validTagPrefix = "";
+        }
     }
 
 }
