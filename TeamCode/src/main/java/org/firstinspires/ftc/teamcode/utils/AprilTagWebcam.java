@@ -12,7 +12,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
 
 import java.util.ArrayList;
 
@@ -102,21 +101,12 @@ public class AprilTagWebcam {
         }
     }
 
-    public double getBearingForCluster(String id) {
-
-        if (detections.isEmpty()) {
+    public double getBearingForCluster(AprilTagClusterDetection detection) {
+        try {
+            return detection.ftcPose.bearing;
+        } catch (NullPointerException e) {
             return 0;
         }
-
-        for (AprilTagDetection detection : detections) {
-            if (detection instanceof AprilTagClusterDetection) {
-                if (((AprilTagClusterDetection) detection).metadata.name.equals(id)) {
-                    return detection.ftcPose.bearing;
-                }
-            }
-        }
-
-        return 0;
     }
 
     public boolean aprilTagFound() {
@@ -125,38 +115,35 @@ public class AprilTagWebcam {
     }
 
     public boolean validAprilTagFound() {
-        if (aprilTagFound()) {
+        AprilTagClusterDetection detection = getFirstValidTag();
+        return detection != null; //if null, didn't find valid, else, it did
+    }
 
+    public boolean isValidTag(AprilTagClusterDetection detection) {
+        try {
+            boolean allianceCorrect = detection.metadata.name.startsWith(validTagPrefix);
+            boolean rollCorrect = Math.abs(detection.ftcPose.roll) <= 90;
+
+            return allianceCorrect && rollCorrect;
+        } catch (NullPointerException e) {
+            return false; //tag is null
+        }
+    }
+
+    public AprilTagClusterDetection getFirstValidTag() {
+        update();
+        if (aprilTagFound()) {
             for (AprilTagDetection detection : detections) {
                 if (detection instanceof AprilTagClusterDetection) {
-                    AprilTagClusterDetection detection1 = (AprilTagClusterDetection) detection;
-                    if (detection1.metadata.name.startsWith(validTagPrefix)) {
-                        return true;
+                    AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
+                    if (isValidTag(cluster)) {
+                        return cluster;
                     }
                 }
             }
-
         }
 
-        return false;
-    }
-
-    public boolean isValidTag(String name) {
-        return name.startsWith(validTagPrefix);
-    }
-
-    public String getValidTag() {
-        update();
-        for (int i = 0; i < detections.size(); i++) {
-            if (detections.get(i) instanceof AprilTagClusterDetection) {
-                AprilTagClusterDetection detection = (AprilTagClusterDetection) detections.get(i);
-                if (detection.metadata.name.startsWith(validTagPrefix)) {
-                    return detection.metadata.name;
-                }
-            }
-        }
-
-        return "";
+        return null;
     }
 
     public void stop() {

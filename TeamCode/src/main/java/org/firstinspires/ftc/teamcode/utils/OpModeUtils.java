@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
+
 public class OpModeUtils {
 
     //OP MODE MEMBERS
@@ -148,7 +150,7 @@ public class OpModeUtils {
             return;
         }
 
-        String tagClusterFound = webcam.getValidTag(); //returns the valid tag that was found
+        AprilTagClusterDetection tagClusterFound = webcam.getFirstValidTag(); //returns the valid tag that was found
 
         //camera is upside down, so bearing is negative, subtractions of negative bearing results in addition
         double error = APRIL_TAG_TARGET + webcam.getBearingForCluster(tagClusterFound);
@@ -188,8 +190,8 @@ public class OpModeUtils {
         return webcam.validAprilTagFound();
     }
 
-    public String getValidTag() {
-        return webcam.getValidTag();
+    public AprilTagClusterDetection getValidTag() {
+        return webcam.getFirstValidTag();
     }
 
 
@@ -199,7 +201,7 @@ public class OpModeUtils {
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     public void intake() {
-        intakeMotor.setPower(0.6);
+        intakeMotor.setPower(0.5);
     }
 
     public void stopIntake() {
@@ -348,6 +350,7 @@ public class OpModeUtils {
 
     public void setAlliance(AllianceColor alliance) {
         this.alliance = alliance;
+        webcam.changeAlliance(alliance);
     }
 
 }

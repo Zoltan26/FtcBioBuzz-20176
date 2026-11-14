@@ -29,12 +29,10 @@ import org.firstinspires.ftc.teamcode.utils.OpModeUtils;
 
 @Autonomous(name="Second-Tip Red", group="Robot", preselectTeleOp = "BioBuzz - Red Alliance")
 
-public class SecondTipRed extends LinearOpMode {
+public class SecondTipRed extends GenericAuto {
 
     /* Declare OpMode members. */
     //done in utils
-
-    protected OpModeUtils utils;
 
     @Override
     public void runOpMode() {
@@ -50,25 +48,27 @@ public class SecondTipRed extends LinearOpMode {
 
         // Step through each leg of the path -----------------------------------------------------------------------------------------------------
         if (utils.getValidTargetFound()) {
-            //make sure tip was successful by reading the AprilTag
-            //if not, this will fail, and we will just move into position
             utils.startPollenShooting();
-            while (timer.seconds() < 5) {
-                utils.shootPollen();
-                if (timer.seconds() > 1.5) {
-                    utils.releasePollenFlowToShooter();
+            while (timer.seconds() < 5.2) {
+                if (timer.seconds() <= 4.5) {
+                    utils.shootPollen();
+                    if (timer.seconds() > 2) {
+                        utils.releasePollenFlowToShooter();
+                    }
+                } else {
+                    //got to give it time to go back up before we stop shooting
+                    //this is to prevent a ball getting stuck in the shooter
+                    utils.blockPollenFlowToShooter();
                 }
             }
 
-            utils.endPollenShooting();
             utils.blockPollenFlowToShooter();
+            utils.endPollenShooting();
         }
 
-        //sleep to allow movements, then go to next movement
-        utils.standardDrive(-1, 0, 0, 0.5);
-        sleep(400);
-        utils.standardDrive(0, -1, 0, 0.5);
-        sleep(1600);
+        move(-1, 1.25);
+        rotate(1, 65);
+        move(-1, 2.2);
         utils.stopMoving();
 
         // Finish --------------------------------------------------------------------------------------------------------------------------------

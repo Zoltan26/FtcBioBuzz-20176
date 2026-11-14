@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode.Teleops;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.OpModeUtils;
 
@@ -60,6 +61,9 @@ public class RobotTeleopMecanum_Iterative extends OpMode {
         utils = new OpModeUtils(hardwareMap, alliance);
 
         // Send telemetry message to signify robot waiting;
+        telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
+        telemetry.setCaptionValueSeparator(": ");
+
         telemetry.addData(">", "Robot Ready.  Press START.");
     }
 
@@ -79,7 +83,7 @@ public class RobotTeleopMecanum_Iterative extends OpMode {
         double forward = -gamepad1.left_stick_y;
         double strafe = gamepad1.left_stick_x;
         double rotate = gamepad1.right_stick_x;
-        double speed = isSafetyMode ? 0 : isPollenShooting ? precisionDriveSpeed : normalDriveSpeed;
+        double speed = isSafetyMode ? 0 : isPrecisionMode ? precisionDriveSpeed : normalDriveSpeed;
 
         if (gamepad1.a) {
             utils.aprilTagDrive(forward, strafe, rotate, speed);
@@ -232,13 +236,9 @@ public class RobotTeleopMecanum_Iterative extends OpMode {
         telemetry.addData("Alliance", alliance);
         telemetry.addLine();
         telemetry.addData("Pollen Shooting", isPollenShooting ? "TRUE" : "FALSE");
-        telemetry.addData("Pollen Speed", utils.getPollenSpeed());
-        telemetry.addData("Pollen Target", utils.getPollenTargetSpeed());
         telemetry.addData("Pollen Stable", utils.getPollenPIDStable() ? "TRUE" : "FALSE");
         //telemetry.addLine();
         //telemetry.addData("Nectar Shooting", isIntaking ? "TRUE" : "FALSE");
-        //telemetry.addData("Nectar Speed", utils.getNectarSpeed());
-        //telemetry.addData("Nectar Target", utils.getNectarTargetSpeed());
         //telemetry.addData("Nectar Stable", utils.getNectarPIDStable() ? "TRUE" : "FALSE");
         telemetry.update();
     }
