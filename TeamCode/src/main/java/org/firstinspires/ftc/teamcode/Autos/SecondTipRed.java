@@ -48,7 +48,6 @@ public class SecondTipRed extends GenericAuto {
 
         // Step through each leg of the path -----------------------------------------------------------------------------------------------------
         if (utils.getValidTargetFound()) {
-            utils.startPollenShooting();
             while (timer.seconds() < 5.2) {
                 if (timer.seconds() <= 4.5) {
                     utils.shootPollen();

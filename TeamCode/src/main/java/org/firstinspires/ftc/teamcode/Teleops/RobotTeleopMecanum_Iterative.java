@@ -131,15 +131,12 @@ public class RobotTeleopMecanum_Iterative extends OpMode {
         //POLLEN SHOOTING ------------------------------------------------------------------------------------------------------
         if (gamepad1.leftBumperWasPressed() || gamepad1.rightBumperWasPressed()) {
             isPollenShooting = !isPollenShooting;
-            if (isPollenShooting) {
-                utils.startPollenShooting();
-            } else {
-                utils.endPollenShooting();
-            }
         }
 
         if (isPollenShooting) {
             utils.shootPollen();
+        } else {
+            utils.endPollenShooting();
         }
 
         if (gamepad1.left_trigger_pressed || gamepad1.right_trigger_pressed) {

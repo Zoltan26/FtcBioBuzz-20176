@@ -42,7 +42,6 @@ public class FirstTipRed extends GenericAuto {
         ElapsedTime timer = new ElapsedTime(); //starts counting from "start" NOT "init"
 
         // Step through each leg of the path -----------------------------------------------------------------------------------------------------
-        utils.startPollenShooting();
         while (timer.seconds() < 5.2) {
             if (timer.seconds() <= 4.5) {
                 utils.shootPollen();

@@ -17,12 +17,12 @@ import org.firstinspires.ftc.teamcode.utils.OpModeUtils;
 public class kPfinding extends RobotTeleopMecanum_Iterative {
 
     //double Kf = 0.0004;
-    double Kf = 0.000592;
-    double Ks = 0.066;
-    double Kp = 0.0012;
-    double targetSpeed = 1210;
-    double highSpeed = 1210;
-    double lowSpeed = 200;
+    double Kf = 0.000502;
+    double Ks = 0.102;
+    double Kp = 0.001;
+    double targetSpeed = 1250;
+    double highSpeed = 1250;
+    double lowSpeed = 800;
 
     double averageError = 0;
     double totalError = 0;

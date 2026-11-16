@@ -1,3 +1,11 @@
+# VERSION 1.3.0 (11/15/2026):
+    -Fixed PID tuning OpModes to further improve ease of tuning
+    -Fixed PIDController class to remove outdated and unneeded code
+        -This required an update to OpModeUtils and other OpMode classes
+    -Tuned PID (mostly). Might need another tuning later when flywheel is fixed
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
 # VERSION 1.2.0 (11/14/2026):
     -Remembered to add v1.1.1 to changelog
     -Fixed changelog for version 1.1.1 to more accurately represent what changed

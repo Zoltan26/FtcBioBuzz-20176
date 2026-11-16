@@ -51,7 +51,6 @@ public class SecondTipBlue extends GenericAuto {
         //ensure a tag has been found = tip has happened
         //don't want to shoot unless tip is confirmed (no waste balls plz)
         if (utils.getValidTargetFound()) {
-            utils.startPollenShooting();
             while (timer.seconds() < 5.2) {
                 if (timer.seconds() <= 4.5) {
                     utils.shootPollen();

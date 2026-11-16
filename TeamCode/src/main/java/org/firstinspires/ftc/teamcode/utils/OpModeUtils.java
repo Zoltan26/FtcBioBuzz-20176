@@ -30,7 +30,7 @@ public class OpModeUtils {
 
 
     //CONSTANTS
-    private final double POLLEN_SHOOTER_SPEED = 1250;
+    private final double POLLEN_SHOOTER_SPEED = 1280;
     private final double NECTAR_SHOOTER_SPEED = 1550; //this is guess, not real. must find
     private final double POLLEN_RELEASE_POSITION = 0.15;
     private final double POLLEN_STOPPER_POSITION = 0.375;
@@ -228,26 +228,15 @@ public class OpModeUtils {
     // POLLEN SHOOTING -----------------------------------------------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    public void startPollenShooting() {
-        //preventing mishaps
-        if (pollenServo.getPosition() != POLLEN_STOPPER_POSITION) {
-            return;
-        }
-
-        pollenPID.startLoop();
-    }
-
     public void shootPollen() {
         pollenPID.loop();
     }
 
     public void endPollenShooting() {
-        //preventing mishaps
-        if (pollenServo.getPosition() != POLLEN_STOPPER_POSITION) {
-            return;
+        blockPollenFlowToShooter();
+        if (pollenServo.getPosition() == POLLEN_STOPPER_POSITION) {
+            pollenShooter.setPower(0);
         }
-
-        pollenPID.endLoop();
     }
 
     public void releasePollenFlowToShooter() {
@@ -272,30 +261,16 @@ public class OpModeUtils {
     // NECTAR SHOOTING -----------------------------------------------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    public void startNectarShooting() {
-        //preventing mishaps
-        /* yeah....
-        if (nectarServo.getPosition() != NECTAR_STOPPER_POSITION) {
-            return;
-        }
-         */
-
-        nectarPID.startLoop();
-    }
-
     public void shootNectar() {
         nectarPID.loop();
     }
 
     public void endNectarShooting() {
-        //preventing mishaps
-        /* yeah....
-        if (nectarServo.getPosition() != NECTAR_STOPPER_POSITION) {
-            return;
+        if (nectarServo.getPosition() == NECTAR_STOPPER_POSITION) {
+            nectarShooter.setPower(0);
+        } else {
+            nectarPID.loop();
         }
-         */
-
-        nectarPID.endLoop();
     }
 
     public void releaseNectarFlowToShooter() {

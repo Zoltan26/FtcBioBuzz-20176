@@ -14,23 +14,29 @@ import org.firstinspires.ftc.teamcode.utils.PIDController;
 public class RobotTeleopPIDTesting extends RobotTeleopMecanum_Iterative {
 
     private boolean testingActive = false;
-    private double Kp = 0.0007;
-    private double Ks = 0.28;
-    private double Kf = 0.0006;
-    private final double[] speed = {800, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 1550, 1600};
-    private int speedIndex = 6;
-    private final double[] increments = {10, 1.0, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001, 0.00000001};
-    private int incrementIndex = 0;
+    private double Kp = 0.00005;
+    private double Ks = 0.102;
+    private double Kf = 0.0005368;
+    private final double[] speed = {800, 1200, 1210, 1220, 1230, 1240, 1250, 1260, 1270, 1280, 1290, 1300};
+    private int speedIndex = 9;
+    private final double[] increments = {1.0, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001, 0.00000001};
+    private int incrementIndex = 4;
     private boolean reverseAdd = false;
 
     private DcMotor referenceMotor;
     private PIDController pid;
 
+    double averageError = 0;
+    double totalError = 0;
+    double denominator = 0;
+
+
     @Override
     public void init() {
         referenceMotor = hardwareMap.get(DcMotor.class, "pollen_shooter");
         referenceMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        pid = new PIDController(referenceMotor, speed[0]);
+        pid = new PIDController(referenceMotor, speed[speedIndex]);
+        pid.tune(Kp, Kf, Ks, speed[speedIndex]);
         this.alliance = AllianceColor.UNAFFILIATED;
 
         telemetry.addData(">", "Robot Ready.  Press START.");
@@ -56,42 +62,49 @@ public class RobotTeleopPIDTesting extends RobotTeleopMecanum_Iterative {
             }
         }
 
+        boolean reset = false;
+
         if (gamepad1.dpadLeftWasPressed()) {
             reverseAdd = !reverseAdd;
         }
 
         if (gamepad1.dpadUpWasPressed()) {
             Kp += increments[incrementIndex] * (reverseAdd ? -1 : 1);
+            reset = true;
         }
 
         if (gamepad1.dpadRightWasPressed()) {
             Ks += increments[incrementIndex] * (reverseAdd ? -1 : 1);
+            reset = true;
         }
 
         if (gamepad1.dpadDownWasPressed()) {
             Kf += increments[incrementIndex] * (reverseAdd ? -1 : 1);
+            reset = true;
         }
 
-        if (gamepad1.bWasPressed()) {
-            testingActive = !testingActive;
-            if (testingActive) {
-                pid.tune(Kp, Kf, Ks, speed[speedIndex]);
-                pid.startLoop();
-            }
+        if (reset) {
+            //reset to track error info at a target Kf
+            totalError = 0;
+            denominator = 0;
         }
 
-        if (testingActive) {
-            pid.loop();
-        } else {
-            referenceMotor.setPower(0);
-        }
+        pid.tune(Kp, Kf, Ks, speed[speedIndex]);
+        pid.loop();
+
+        totalError += pid.getError();
+        denominator++;
+        //average error to know roughly how on-point it is
+        //it will fluctuate a lot, but generally, is it centered on a point, ish?
+        averageError = totalError / denominator;
 
         telemetry.addData("Power", referenceMotor.getPower());
-        telemetry.addData("Target Speed", speed[speedIndex]);
+        telemetry.addData("Target Speed", pid.getTargetSpeed());
         telemetry.addData("Current Speed", pid.getCurrentSpeed());
         telemetry.addData("Get Velocity", ((DcMotorEx) referenceMotor).getVelocity());
         telemetry.addData("Current Position", referenceMotor.getCurrentPosition());
         telemetry.addData("Error", pid.getError());
+        telemetry.addData("Average Error", averageError);
         telemetry.addData("Stable", pid.isStable());
         telemetry.addLine();
         telemetry.addData("testingActive", testingActive);

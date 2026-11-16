@@ -15,10 +15,11 @@ import org.firstinspires.ftc.teamcode.utils.OpModeUtils;
 @TeleOp(name="feedforward finding", group="PID")
 public class kFfinding extends RobotTeleopMecanum_Iterative {
 
+    //0.0005368
     //double Kf = 0.0004;
     double Kf = 0; //0.000592
-    double Ks = 0.066;
-    double targetSpeed = 1240;
+    double Ks = 0.034;
+    double targetSpeed = 1280;
     double averageError = 0;
     double totalError = 0;
     double denominator = 0;
@@ -75,7 +76,6 @@ public class kFfinding extends RobotTeleopMecanum_Iterative {
             totalError = 0;
             denominator = 0;
             highestFluxError = 0;
-            reset = false;
         }
 
         double error = targetSpeed - motor.getVelocity();

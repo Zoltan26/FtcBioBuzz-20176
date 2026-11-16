@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Teleops.RobotTeleopMecanum_Iterative;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.OpModeUtils;
 
-@TeleOp(name="feedforward bounds", group="PID")
+//@TeleOp(name="feedforward bounds", group="PID")
 public class kFBoundsfinding extends RobotTeleopMecanum_Iterative {
 
     double Kf = 0.0004;

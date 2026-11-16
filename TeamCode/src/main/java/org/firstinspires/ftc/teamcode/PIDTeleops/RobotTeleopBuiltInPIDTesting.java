@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Teleops.RobotTeleopMecanum_Iterative;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.OpModeUtils;
 
-@TeleOp(name="Flywheel Built-In PID Testing", group="PID")
+//@TeleOp(name="Flywheel Built-In PID Testing", group="PID")
 public class RobotTeleopBuiltInPIDTesting extends RobotTeleopMecanum_Iterative {
 
     //start by getting Kf to get as close to hitting target

@@ -9,17 +9,16 @@ public class PIDController {
     private double targetSpeed;        //tracks target speed in ticks/second (tps), set once at the start of the loop
 
     //gonna need to retune it when we have the right speed. frankly, these initial values won't really be used
-    private static final double KP_DEFAULT = 0.0012;
-    private static final double KF_DEFAULT = 0.000592;
-    private static final double KS_DEFAULT = 0.066;
+    private static final double KP_DEFAULT = 0.00005;
+    private static final double KF_DEFAULT = 0.0005368;
+    private static final double KS_DEFAULT = 0.102;
 
     private double Kp = KP_DEFAULT;  //how fast/slow the system moves towards 0 error
     private double Kf = KF_DEFAULT;  //estimates based on speed, predicts (more or less accurately) power requirement
     private double Ks = KS_DEFAULT;  //power needed to overcome static friction
-    //target = 1210
+    //target = 1280
 
     double error;
-    boolean loopActive = false;
 
     protected final double STABILIZATION_TOLERANCE = 100;
     protected final double STABILIZATION_MINIMUM_THRESHOLD = 250;
@@ -35,19 +34,6 @@ public class PIDController {
     public PIDController(DcMotorEx motor, double targetSpeed) {
         this.motor = motor;
         this.targetSpeed = clamp(targetSpeed, 0, 2000);
-    }
-
-    public void startLoop() {
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        loopActive = true;
-    }
-
-    public void endLoop() {
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motor.setPower(0);
-        loopActive = false;
     }
 
     public void loop() {
